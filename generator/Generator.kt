@@ -51,7 +51,9 @@ class Generator {
         val invocation = "this.$fieldName.invoke(${this.parameters(method).keys.joinToString(", ")})"
         val end = when (method.returnType) {
             Void.TYPE -> " {$invocation}"
-            else -> ": ${method.genericReturnType.kotlinType} = $invocation".letIf(method.returnType.kotlin != Any::class) {it + " as ${method.genericReturnType.kotlinType}"}
+            else -> method.genericReturnType.kotlinType.let {returnType ->
+                ": $returnType = $invocation".letIf(method.returnType.kotlin != Any::class) {"$it as $returnType"}
+            }
         }
 
         return "@JvmStatic\nfun ${method.name}(${parameters(method).entries.joinToString(", ") {"${it.key}: ${it.value}"}})$end\n\n"
@@ -88,8 +90,8 @@ private val Class<*>.literal get(): String = when (this) {
 private val Class<*>.kotlinName get(): String = this.kotlin.simpleName!!
 
 private val Type.kotlinType get(): String = when (this) {
-    is ParameterizedType -> this.typeName.replace('?', '*')
-    is Class<*> -> this.kotlinName.letIf(this.isArray && !this.componentType.isPrimitive) {"$it<*>"}
+    is ParameterizedType -> this.typeName.replace('?', '*') + "?"
+    is Class<*> -> this.kotlinName.letIf(this.isArray && !this.componentType.isPrimitive) {"$it<*>"}.letIf(!this.isPrimitive) {"$it?"}
     else -> throw IllegalArgumentException()
 }
 

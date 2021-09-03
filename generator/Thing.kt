@@ -12,6 +12,11 @@ object Thing {
     @JvmField
     val unsafe: Any = Class.forName("jdk.internal.misc.Unsafe").let {unsafe -> lookup.findStaticGetter(unsafe, "theUnsafe", unsafe)()}
 
-    // @JvmStatic
-    // inline fun <reified T> allocateInstance(): T = this.allocateInstance(T::class.java) as T
+/*
+    @JvmStatic
+    fun <T> allocateInstance(type: Class<T>): T = this.allocateInstance.invoke(type) as T
+
+    @JvmStatic
+    inline fun <reified T> allocateInstance(): T = this.allocateInstance(T::class.java)
+*/
 }

@@ -9,6 +9,7 @@ import sun.misc.Unsafe
 import java.lang.invoke.MethodHandles
 import java.security.ProtectionDomain
 
+@Suppress("UNCHECKED_CAST")
 object Safe {
     @JvmField
     val sunUnsafe: Unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply {trySetAccessible()}[null] as Unsafe
@@ -318,7 +319,10 @@ object Safe {
     private val putObjectVolatile: MethodHandle = lookup.bind(unsafe, "putObjectVolatile", MethodType.methodType(Void.TYPE, Any::class.java, Long::class.java, Any::class.java))
 
     @JvmStatic
-    fun allocateInstance(type: Class<*>): Any = this.allocateInstance.invoke(type)
+    fun <T> allocateInstance(type: Class<T>): T = this.allocateInstance.invoke(type) as T
+
+    @JvmStatic
+    inline fun <reified T> allocateInstance(): T = this.allocateInstance(T::class.java)
 
     @JvmStatic
     fun loadFence() {
@@ -336,18 +340,18 @@ object Safe {
     }
 
     @JvmStatic
-    fun getReference(any: Any, long: Long): Any = this.getReference.invoke(any, long)
+    fun getReference(any: Any?, long: Long): Any? = this.getReference.invoke(any, long)
 
     @JvmStatic
-    fun putReference(any: Any, long: Long, any1: Any) {
+    fun putReference(any: Any?, long: Long, any1: Any?) {
         this.putReference.invoke(any, long, any1)
     }
 
     @JvmStatic
-    fun getBoolean(any: Any, long: Long): Boolean = this.getBoolean.invoke(any, long) as Boolean
+    fun getBoolean(any: Any?, long: Long): Boolean = this.getBoolean.invoke(any, long) as Boolean
 
     @JvmStatic
-    fun putBoolean(any: Any, long: Long, boolean: Boolean) {
+    fun putBoolean(any: Any?, long: Long, boolean: Boolean) {
         this.putBoolean.invoke(any, long, boolean)
     }
 
@@ -355,7 +359,7 @@ object Safe {
     fun getByte(long: Long): Byte = this.getByte.invoke(long) as Byte
 
     @JvmStatic
-    fun getByte(any: Any, long: Long): Byte = this.getByte1.invoke(any, long) as Byte
+    fun getByte(any: Any?, long: Long): Byte = this.getByte1.invoke(any, long) as Byte
 
     @JvmStatic
     fun putByte(long: Long, byte: Byte) {
@@ -363,12 +367,12 @@ object Safe {
     }
 
     @JvmStatic
-    fun putByte(any: Any, long: Long, byte: Byte) {
+    fun putByte(any: Any?, long: Long, byte: Byte) {
         this.putByte1.invoke(any, long, byte)
     }
 
     @JvmStatic
-    fun getShort(any: Any, long: Long): Short = this.getShort.invoke(any, long) as Short
+    fun getShort(any: Any?, long: Long): Short = this.getShort.invoke(any, long) as Short
 
     @JvmStatic
     fun getShort(long: Long): Short = this.getShort1.invoke(long) as Short
@@ -379,18 +383,18 @@ object Safe {
     }
 
     @JvmStatic
-    fun putShort(any: Any, long: Long, short: Short) {
+    fun putShort(any: Any?, long: Long, short: Short) {
         this.putShort1.invoke(any, long, short)
     }
 
     @JvmStatic
-    fun getChar(any: Any, long: Long): Char = this.getChar.invoke(any, long) as Char
+    fun getChar(any: Any?, long: Long): Char = this.getChar.invoke(any, long) as Char
 
     @JvmStatic
     fun getChar(long: Long): Char = this.getChar1.invoke(long) as Char
 
     @JvmStatic
-    fun putChar(any: Any, long: Long, char: Char) {
+    fun putChar(any: Any?, long: Long, char: Char) {
         this.putChar.invoke(any, long, char)
     }
 
@@ -403,10 +407,10 @@ object Safe {
     fun getInt(long: Long): Int = this.getInt.invoke(long) as Int
 
     @JvmStatic
-    fun getInt(any: Any, long: Long): Int = this.getInt1.invoke(any, long) as Int
+    fun getInt(any: Any?, long: Long): Int = this.getInt1.invoke(any, long) as Int
 
     @JvmStatic
-    fun putInt(any: Any, long: Long, int: Int) {
+    fun putInt(any: Any?, long: Long, int: Int) {
         this.putInt.invoke(any, long, int)
     }
 
@@ -419,7 +423,7 @@ object Safe {
     fun getLong(long: Long): Long = this.getLong.invoke(long) as Long
 
     @JvmStatic
-    fun getLong(any: Any, long: Long): Long = this.getLong1.invoke(any, long) as Long
+    fun getLong(any: Any?, long: Long): Long = this.getLong1.invoke(any, long) as Long
 
     @JvmStatic
     fun putLong(long: Long, long1: Long) {
@@ -427,7 +431,7 @@ object Safe {
     }
 
     @JvmStatic
-    fun putLong(any: Any, long: Long, long1: Long) {
+    fun putLong(any: Any?, long: Long, long1: Long) {
         this.putLong1.invoke(any, long, long1)
     }
 
@@ -435,7 +439,7 @@ object Safe {
     fun getFloat(long: Long): Float = this.getFloat.invoke(long) as Float
 
     @JvmStatic
-    fun getFloat(any: Any, long: Long): Float = this.getFloat1.invoke(any, long) as Float
+    fun getFloat(any: Any?, long: Long): Float = this.getFloat1.invoke(any, long) as Float
 
     @JvmStatic
     fun putFloat(long: Long, float: Float) {
@@ -443,12 +447,12 @@ object Safe {
     }
 
     @JvmStatic
-    fun putFloat(any: Any, long: Long, float: Float) {
+    fun putFloat(any: Any?, long: Long, float: Float) {
         this.putFloat1.invoke(any, long, float)
     }
 
     @JvmStatic
-    fun getDouble(any: Any, long: Long): Double = this.getDouble.invoke(any, long) as Double
+    fun getDouble(any: Any?, long: Long): Double = this.getDouble.invoke(any, long) as Double
 
     @JvmStatic
     fun getDouble(long: Long): Double = this.getDouble1.invoke(long) as Double
@@ -459,79 +463,79 @@ object Safe {
     }
 
     @JvmStatic
-    fun putDouble(any: Any, long: Long, double: Double) {
+    fun putDouble(any: Any?, long: Long, double: Double) {
         this.putDouble1.invoke(any, long, double)
     }
 
     @JvmStatic
-    fun getReferenceVolatile(any: Any, long: Long): Any = this.getReferenceVolatile.invoke(any, long)
+    fun getReferenceVolatile(any: Any?, long: Long): Any? = this.getReferenceVolatile.invoke(any, long)
 
     @JvmStatic
-    fun putReferenceVolatile(any: Any, long: Long, any1: Any) {
+    fun putReferenceVolatile(any: Any?, long: Long, any1: Any?) {
         this.putReferenceVolatile.invoke(any, long, any1)
     }
 
     @JvmStatic
-    fun getBooleanVolatile(any: Any, long: Long): Boolean = this.getBooleanVolatile.invoke(any, long) as Boolean
+    fun getBooleanVolatile(any: Any?, long: Long): Boolean = this.getBooleanVolatile.invoke(any, long) as Boolean
 
     @JvmStatic
-    fun putBooleanVolatile(any: Any, long: Long, boolean: Boolean) {
+    fun putBooleanVolatile(any: Any?, long: Long, boolean: Boolean) {
         this.putBooleanVolatile.invoke(any, long, boolean)
     }
 
     @JvmStatic
-    fun getByteVolatile(any: Any, long: Long): Byte = this.getByteVolatile.invoke(any, long) as Byte
+    fun getByteVolatile(any: Any?, long: Long): Byte = this.getByteVolatile.invoke(any, long) as Byte
 
     @JvmStatic
-    fun putByteVolatile(any: Any, long: Long, byte: Byte) {
+    fun putByteVolatile(any: Any?, long: Long, byte: Byte) {
         this.putByteVolatile.invoke(any, long, byte)
     }
 
     @JvmStatic
-    fun getShortVolatile(any: Any, long: Long): Short = this.getShortVolatile.invoke(any, long) as Short
+    fun getShortVolatile(any: Any?, long: Long): Short = this.getShortVolatile.invoke(any, long) as Short
 
     @JvmStatic
-    fun putShortVolatile(any: Any, long: Long, short: Short) {
+    fun putShortVolatile(any: Any?, long: Long, short: Short) {
         this.putShortVolatile.invoke(any, long, short)
     }
 
     @JvmStatic
-    fun getCharVolatile(any: Any, long: Long): Char = this.getCharVolatile.invoke(any, long) as Char
+    fun getCharVolatile(any: Any?, long: Long): Char = this.getCharVolatile.invoke(any, long) as Char
 
     @JvmStatic
-    fun putCharVolatile(any: Any, long: Long, char: Char) {
+    fun putCharVolatile(any: Any?, long: Long, char: Char) {
         this.putCharVolatile.invoke(any, long, char)
     }
 
     @JvmStatic
-    fun getIntVolatile(any: Any, long: Long): Int = this.getIntVolatile.invoke(any, long) as Int
+    fun getIntVolatile(any: Any?, long: Long): Int = this.getIntVolatile.invoke(any, long) as Int
 
     @JvmStatic
-    fun putIntVolatile(any: Any, long: Long, int: Int) {
+    fun putIntVolatile(any: Any?, long: Long, int: Int) {
         this.putIntVolatile.invoke(any, long, int)
     }
 
     @JvmStatic
-    fun getLongVolatile(any: Any, long: Long): Long = this.getLongVolatile.invoke(any, long) as Long
+    fun getLongVolatile(any: Any?, long: Long): Long = this.getLongVolatile.invoke(any, long) as Long
 
     @JvmStatic
-    fun putLongVolatile(any: Any, long: Long, long1: Long) {
+    fun putLongVolatile(any: Any?, long: Long, long1: Long) {
         this.putLongVolatile.invoke(any, long, long1)
     }
 
     @JvmStatic
-    fun getFloatVolatile(any: Any, long: Long): Float = this.getFloatVolatile.invoke(any, long) as Float
+    fun getFloatVolatile(any: Any?, long: Long): Float = this.getFloatVolatile.invoke(any, long) as Float
 
     @JvmStatic
-    fun putFloatVolatile(any: Any, long: Long, float: Float) {
+    fun putFloatVolatile(any: Any?, long: Long, float: Float) {
         this.putFloatVolatile.invoke(any, long, float)
     }
 
     @JvmStatic
-    fun getDoubleVolatile(any: Any, long: Long): Double = this.getDoubleVolatile.invoke(any, long) as Double
+    fun getDoubleVolatile(any: Any?, long: Long): Double = this.getDoubleVolatile.invoke(any, long) as Double
 
     @JvmStatic
-    fun putDoubleVolatile(any: Any, long: Long, double: Double) {
+    fun putDoubleVolatile(any: Any?, long: Long, double: Double) {
         this.putDoubleVolatile.invoke(any, long, double)
     }
 
@@ -541,37 +545,39 @@ object Safe {
     }
 
     @JvmStatic
-    fun unpark(any: Any) {
+    fun unpark(any: Any?) {
         this.unpark.invoke(any)
     }
 
     @JvmStatic
-    fun defineClass(string: String, byteArray: ByteArray, int: Int, int1: Int, classLoader: ClassLoader, protectionDomain: ProtectionDomain): Class<*> =
-        this.defineClass.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
+    fun defineClass(string: String?, byteArray: ByteArray?, int: Int, int1: Int, classLoader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
+        return this.defineClass.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
+    }
 
     @JvmStatic
-    fun objectFieldOffset(field: Field): Long = this.objectFieldOffset.invoke(field) as Long
+    fun objectFieldOffset(field: Field?): Long = this.objectFieldOffset.invoke(field) as Long
 
     @JvmStatic
-    fun objectFieldOffset(type: Class<*>, string: String): Long = this.objectFieldOffset1.invoke(type, string) as Long
+    fun objectFieldOffset(type: Class<*>?, string: String?): Long = this.objectFieldOffset1.invoke(type, string) as Long
 
     @JvmStatic
-    fun defineClass0(string: String, byteArray: ByteArray, int: Int, int1: Int, classLoader: ClassLoader, protectionDomain: ProtectionDomain): Class<*> =
-        this.defineClass0.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
+    fun defineClass0(string: String?, byteArray: ByteArray?, int: Int, int1: Int, classLoader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
+        return this.defineClass0.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
+    }
 
     @JvmStatic
-    fun ensureClassInitialized(type: Class<*>) {
+    fun ensureClassInitialized(type: Class<*>?) {
         this.ensureClassInitialized.invoke(type)
     }
 
     @JvmStatic
-    fun staticFieldBase(field: Field): Any = this.staticFieldBase.invoke(field)
+    fun staticFieldBase(field: Field?): Any? = this.staticFieldBase.invoke(field)
 
     @JvmStatic
-    fun staticFieldOffset(field: Field): Long = this.staticFieldOffset.invoke(field) as Long
+    fun staticFieldOffset(field: Field?): Long = this.staticFieldOffset.invoke(field) as Long
 
     @JvmStatic
-    fun shouldBeInitialized(type: Class<*>): Boolean = this.shouldBeInitialized.invoke(type) as Boolean
+    fun shouldBeInitialized(type: Class<*>?): Boolean = this.shouldBeInitialized.invoke(type) as Boolean
 
     @JvmStatic
     fun loadLoadFence() {
@@ -584,13 +590,13 @@ object Safe {
     }
 
     @JvmStatic
-    fun getAddress(any: Any, long: Long): Long = this.getAddress.invoke(any, long) as Long
+    fun getAddress(any: Any?, long: Long): Long = this.getAddress.invoke(any, long) as Long
 
     @JvmStatic
     fun getAddress(long: Long): Long = this.getAddress1.invoke(long) as Long
 
     @JvmStatic
-    fun putAddress(any: Any, long: Long, long1: Long) {
+    fun putAddress(any: Any?, long: Long, long1: Long) {
         this.putAddress.invoke(any, long, long1)
     }
 
@@ -605,7 +611,7 @@ object Safe {
     }
 
     @JvmStatic
-    fun setMemory(any: Any, long: Long, long1: Long, byte: Byte) {
+    fun setMemory(any: Any?, long: Long, long1: Long, byte: Byte) {
         this.setMemory.invoke(any, long, long1, byte)
     }
 
@@ -615,7 +621,7 @@ object Safe {
     }
 
     @JvmStatic
-    fun copyMemory(any: Any, long: Long, any1: Any, long1: Long, long2: Long) {
+    fun copyMemory(any: Any?, long: Long, any1: Any?, long1: Long, long2: Long) {
         this.copyMemory.invoke(any, long, any1, long1, long2)
     }
 
@@ -625,7 +631,7 @@ object Safe {
     }
 
     @JvmStatic
-    fun copySwapMemory(any: Any, long: Long, any1: Any, long1: Long, long2: Long, long3: Long) {
+    fun copySwapMemory(any: Any?, long: Long, any1: Any?, long1: Long, long2: Long, long3: Long) {
         this.copySwapMemory.invoke(any, long, any1, long1, long2, long3)
     }
 
@@ -641,13 +647,13 @@ object Safe {
     fun dataCacheLineFlushSize(): Int = this.dataCacheLineFlushSize.invoke() as Int
 
     @JvmStatic
-    fun arrayBaseOffset(type: Class<*>): Int = this.arrayBaseOffset.invoke(type) as Int
+    fun arrayBaseOffset(type: Class<*>?): Int = this.arrayBaseOffset.invoke(type) as Int
 
     @JvmStatic
-    fun arrayIndexScale(type: Class<*>): Int = this.arrayIndexScale.invoke(type) as Int
+    fun arrayIndexScale(type: Class<*>?): Int = this.arrayIndexScale.invoke(type) as Int
 
     @JvmStatic
-    fun getUncompressedObject(long: Long): Any = this.getUncompressedObject.invoke(long)
+    fun getUncompressedObject(long: Long): Any? = this.getUncompressedObject.invoke(long)
 
     @JvmStatic
     fun allocateMemory(long: Long): Long = this.allocateMemory.invoke(long) as Long
@@ -667,13 +673,13 @@ object Safe {
     fun pageSize(): Int = this.pageSize.invoke() as Int
 
     @JvmStatic
-    fun defineAnonymousClass(type: Class<*>, byteArray: ByteArray, array: Array<*>): Class<*> = this.defineAnonymousClass.invoke(type, byteArray, array) as Class<*>
+    fun defineAnonymousClass(type: Class<*>?, byteArray: ByteArray?, array: Array<*>?): Class<*>? = this.defineAnonymousClass.invoke(type, byteArray, array) as Class<*>?
 
     @JvmStatic
-    fun allocateUninitializedArray(type: Class<*>, int: Int): Any = this.allocateUninitializedArray.invoke(type, int)
+    fun allocateUninitializedArray(type: Class<*>?, int: Int): Any? = this.allocateUninitializedArray.invoke(type, int)
 
     @JvmStatic
-    fun getLoadAverage(doubleArray: DoubleArray, int: Int): Int = this.getLoadAverage.invoke(doubleArray, int) as Int
+    fun getLoadAverage(doubleArray: DoubleArray?, int: Int): Int = this.getLoadAverage.invoke(doubleArray, int) as Int
 
     @JvmStatic
     fun isBigEndian(): Boolean = this.isBigEndian.invoke() as Boolean
@@ -684,18 +690,18 @@ object Safe {
     }
 
     @JvmStatic
-    fun getObject(any: Any, long: Long): Any = this.getObject.invoke(any, long)
+    fun getObject(any: Any?, long: Long): Any? = this.getObject.invoke(any, long)
 
     @JvmStatic
-    fun getObjectVolatile(any: Any, long: Long): Any = this.getObjectVolatile.invoke(any, long)
+    fun getObjectVolatile(any: Any?, long: Long): Any? = this.getObjectVolatile.invoke(any, long)
 
     @JvmStatic
-    fun putObject(any: Any, long: Long, any1: Any) {
+    fun putObject(any: Any?, long: Long, any1: Any?) {
         this.putObject.invoke(any, long, any1)
     }
 
     @JvmStatic
-    fun putObjectVolatile(any: Any, long: Long, any1: Any) {
+    fun putObjectVolatile(any: Any?, long: Long, any1: Any?) {
         this.putObjectVolatile.invoke(any, long, any1)
     }
 }
