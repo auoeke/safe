@@ -2,8 +2,7 @@ import net.auoeke.extensions.contains
 import net.auoeke.extensions.letIf
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.annotation.Testable
-import sun.misc.Unsafe
-import java.lang.IllegalArgumentException
+import java.lang.Deprecated
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
@@ -30,7 +29,7 @@ class Generator {
         val fieldNames = HashSet<String>()
         val methods = ArrayList<String>()
 
-        Class.forName("jdk.internal.misc.Unsafe").declaredMethods.filter {!(Modifier.isStatic(it.modifiers) || !Modifier.isPublic(it.modifiers) || it.name.contains(true, "release", "acquire", "compare", "opaque", "aligned", "getAnd", "throwException"))}.forEach {
+        Class.forName("jdk.internal.misc.Unsafe").declaredMethods.filter {!(Modifier.isStatic(it.modifiers) || !Modifier.isPublic(it.modifiers) || it.isAnnotationPresent(Deprecated::class.java) || it.name.contains(true, "release", "acquire", "compare", "opaque", "aligned", "getAnd", "throwException"))}.forEach {
             val fieldBaseName = it.name
             var fieldName = fieldBaseName
             var suffix = 1
@@ -48,7 +47,7 @@ class Generator {
     }
 
     private fun declaration(method: Method, fieldName: String): String {
-        val invocation = "this.$fieldName.invoke(${this.parameters(method).keys.joinToString(", ")})"
+        val invocation = "$fieldName.invoke(${this.parameters(method).keys.joinToString(", ")})"
         val end = when (method.returnType) {
             Void.TYPE -> " {$invocation}"
             else -> method.genericReturnType.kotlinType.let {returnType ->

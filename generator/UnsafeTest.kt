@@ -1,3 +1,5 @@
+import net.auoeke.safe.Safe
+import net.auoeke.safe.Safe.new
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.annotation.Testable
 import java.lang.annotation.RetentionPolicy
@@ -6,6 +8,6 @@ import java.lang.annotation.RetentionPolicy
 class UnsafeTest {
     @Test
     fun test() {
-        // println(Safe.allocateInstance<RetentionPolicy>())
+        assert(new<Int>() == 0)
     }
 }

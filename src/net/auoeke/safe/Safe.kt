@@ -6,10 +6,10 @@ import java.lang.invoke.MethodType
 import java.lang.reflect.Field
 import java.nio.ByteBuffer
 import sun.misc.Unsafe
-import java.lang.invoke.MethodHandles
 import java.security.ProtectionDomain
+import kotlin.reflect.KClass
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "unused")
 object Safe {
     @JvmField
     val sunUnsafe: Unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply {trySetAccessible()}[null] as Unsafe
@@ -203,13 +203,6 @@ object Safe {
     private val objectFieldOffset1: MethodHandle = lookup.bind(unsafe, "objectFieldOffset", MethodType.methodType(Long::class.java, Class::class.java, String::class.java))
 
     @JvmStatic
-    private val defineClass0: MethodHandle = lookup.bind(
-        unsafe,
-        "defineClass0",
-        MethodType.methodType(Class::class.java, String::class.java, ByteArray::class.java, Int::class.java, Int::class.java, ClassLoader::class.java, ProtectionDomain::class.java)
-    )
-
-    @JvmStatic
     private val ensureClassInitialized: MethodHandle = lookup.bind(unsafe, "ensureClassInitialized", MethodType.methodType(Void.TYPE, Class::class.java))
 
     @JvmStatic
@@ -255,8 +248,7 @@ object Safe {
     private val copyMemory1: MethodHandle = lookup.bind(unsafe, "copyMemory", MethodType.methodType(Void.TYPE, Long::class.java, Long::class.java, Long::class.java))
 
     @JvmStatic
-    private val copySwapMemory: MethodHandle =
-        lookup.bind(unsafe, "copySwapMemory", MethodType.methodType(Void.TYPE, Any::class.java, Long::class.java, Any::class.java, Long::class.java, Long::class.java, Long::class.java))
+    private val copySwapMemory: MethodHandle = lookup.bind(unsafe, "copySwapMemory", MethodType.methodType(Void.TYPE, Any::class.java, Long::class.java, Any::class.java, Long::class.java, Long::class.java, Long::class.java))
 
     @JvmStatic
     private val copySwapMemory1: MethodHandle = lookup.bind(unsafe, "copySwapMemory", MethodType.methodType(Void.TYPE, Long::class.java, Long::class.java, Long::class.java, Long::class.java))
@@ -292,9 +284,6 @@ object Safe {
     private val pageSize: MethodHandle = lookup.bind(unsafe, "pageSize", MethodType.methodType(Int::class.java))
 
     @JvmStatic
-    private val defineAnonymousClass: MethodHandle = lookup.bind(unsafe, "defineAnonymousClass", MethodType.methodType(Class::class.java, Class::class.java, ByteArray::class.java, Array::class.java))
-
-    @JvmStatic
     private val allocateUninitializedArray: MethodHandle = lookup.bind(unsafe, "allocateUninitializedArray", MethodType.methodType(Any::class.java, Class::class.java, Int::class.java))
 
     @JvmStatic
@@ -307,22 +296,7 @@ object Safe {
     private val invokeCleaner: MethodHandle = lookup.bind(unsafe, "invokeCleaner", MethodType.methodType(Void.TYPE, ByteBuffer::class.java))
 
     @JvmStatic
-    private val getObject: MethodHandle = lookup.bind(unsafe, "getObject", MethodType.methodType(Any::class.java, Any::class.java, Long::class.java))
-
-    @JvmStatic
-    private val getObjectVolatile: MethodHandle = lookup.bind(unsafe, "getObjectVolatile", MethodType.methodType(Any::class.java, Any::class.java, Long::class.java))
-
-    @JvmStatic
-    private val putObject: MethodHandle = lookup.bind(unsafe, "putObject", MethodType.methodType(Void.TYPE, Any::class.java, Long::class.java, Any::class.java))
-
-    @JvmStatic
-    private val putObjectVolatile: MethodHandle = lookup.bind(unsafe, "putObjectVolatile", MethodType.methodType(Void.TYPE, Any::class.java, Long::class.java, Any::class.java))
-
-    @JvmStatic
     fun <T> allocateInstance(type: Class<T>): T = this.allocateInstance.invoke(type) as T
-
-    @JvmStatic
-    inline fun <reified T> allocateInstance(): T = this.allocateInstance(T::class.java)
 
     @JvmStatic
     fun loadFence() {
@@ -340,94 +314,94 @@ object Safe {
     }
 
     @JvmStatic
-    fun getReference(any: Any?, long: Long): Any? = this.getReference.invoke(any, long)
+    fun getReference(any: Any?, offset: Long): Any? = this.getReference.invoke(any, offset)
 
     @JvmStatic
-    fun putReference(any: Any?, long: Long, any1: Any?) {
-        this.putReference.invoke(any, long, any1)
+    fun putReference(any: Any?, offset: Long, any1: Any?) {
+        this.putReference.invoke(any, offset, any1)
     }
 
     @JvmStatic
-    fun getBoolean(any: Any?, long: Long): Boolean = this.getBoolean.invoke(any, long) as Boolean
+    fun getBoolean(any: Any?, offset: Long): Boolean = this.getBoolean.invoke(any, offset) as Boolean
 
     @JvmStatic
-    fun putBoolean(any: Any?, long: Long, boolean: Boolean) {
-        this.putBoolean.invoke(any, long, boolean)
+    fun putBoolean(any: Any?, offset: Long, boolean: Boolean) {
+        this.putBoolean.invoke(any, offset, boolean)
     }
 
     @JvmStatic
-    fun getByte(long: Long): Byte = this.getByte.invoke(long) as Byte
+    fun getByte(address: Long): Byte = this.getByte.invoke(address) as Byte
 
     @JvmStatic
-    fun getByte(any: Any?, long: Long): Byte = this.getByte1.invoke(any, long) as Byte
+    fun getByte(any: Any?, offset: Long): Byte = this.getByte1.invoke(any, offset) as Byte
 
     @JvmStatic
-    fun putByte(long: Long, byte: Byte) {
-        this.putByte.invoke(long, byte)
+    fun putByte(address: Long, byte: Byte) {
+        this.putByte.invoke(address, byte)
     }
 
     @JvmStatic
-    fun putByte(any: Any?, long: Long, byte: Byte) {
-        this.putByte1.invoke(any, long, byte)
+    fun putByte(any: Any?, offset: Long, byte: Byte) {
+        this.putByte1.invoke(any, offset, byte)
     }
 
     @JvmStatic
     fun getShort(any: Any?, long: Long): Short = this.getShort.invoke(any, long) as Short
 
     @JvmStatic
-    fun getShort(long: Long): Short = this.getShort1.invoke(long) as Short
+    fun getShort(address: Long): Short = this.getShort1.invoke(address) as Short
 
     @JvmStatic
-    fun putShort(long: Long, short: Short) {
-        this.putShort.invoke(long, short)
+    fun putShort(address: Long, short: Short) {
+        this.putShort.invoke(address, short)
     }
 
     @JvmStatic
-    fun putShort(any: Any?, long: Long, short: Short) {
-        this.putShort1.invoke(any, long, short)
+    fun putShort(any: Any?, offset: Long, short: Short) {
+        this.putShort1.invoke(any, offset, short)
     }
 
     @JvmStatic
-    fun getChar(any: Any?, long: Long): Char = this.getChar.invoke(any, long) as Char
+    fun getChar(any: Any?, offset: Long): Char = this.getChar.invoke(any, offset) as Char
 
     @JvmStatic
-    fun getChar(long: Long): Char = this.getChar1.invoke(long) as Char
+    fun getChar(address: Long): Char = this.getChar1.invoke(address) as Char
 
     @JvmStatic
-    fun putChar(any: Any?, long: Long, char: Char) {
-        this.putChar.invoke(any, long, char)
+    fun putChar(any: Any?, offset: Long, char: Char) {
+        this.putChar.invoke(any, offset, char)
     }
 
     @JvmStatic
-    fun putChar(long: Long, char: Char) {
-        this.putChar1.invoke(long, char)
+    fun putChar(address: Long, char: Char) {
+        this.putChar1.invoke(address, char)
     }
 
     @JvmStatic
-    fun getInt(long: Long): Int = this.getInt.invoke(long) as Int
+    fun getInt(address: Long): Int = this.getInt.invoke(address) as Int
 
     @JvmStatic
-    fun getInt(any: Any?, long: Long): Int = this.getInt1.invoke(any, long) as Int
+    fun getInt(any: Any?, offset: Long): Int = this.getInt1.invoke(any, offset) as Int
 
     @JvmStatic
-    fun putInt(any: Any?, long: Long, int: Int) {
-        this.putInt.invoke(any, long, int)
+    fun putInt(any: Any?, offset: Long, int: Int) {
+        this.putInt.invoke(any, offset, int)
     }
 
     @JvmStatic
-    fun putInt(long: Long, int: Int) {
-        this.putInt1.invoke(long, int)
+    fun putInt(address: Long, int: Int) {
+        this.putInt1.invoke(address, int)
     }
 
     @JvmStatic
-    fun getLong(long: Long): Long = this.getLong.invoke(long) as Long
+    fun getLong(address: Long): Long = this.getLong.invoke(address) as Long
 
     @JvmStatic
     fun getLong(any: Any?, long: Long): Long = this.getLong1.invoke(any, long) as Long
 
     @JvmStatic
-    fun putLong(long: Long, long1: Long) {
-        this.putLong.invoke(long, long1)
+    fun putLong(address: Long, long: Long) {
+        this.putLong.invoke(address, long)
     }
 
     @JvmStatic
@@ -436,30 +410,30 @@ object Safe {
     }
 
     @JvmStatic
-    fun getFloat(long: Long): Float = this.getFloat.invoke(long) as Float
+    fun getFloat(address: Long): Float = this.getFloat.invoke(address) as Float
 
     @JvmStatic
-    fun getFloat(any: Any?, long: Long): Float = this.getFloat1.invoke(any, long) as Float
+    fun getFloat(any: Any?, offset: Long): Float = this.getFloat1.invoke(any, offset) as Float
 
     @JvmStatic
-    fun putFloat(long: Long, float: Float) {
-        this.putFloat.invoke(long, float)
+    fun putFloat(address: Long, float: Float) {
+        this.putFloat.invoke(address, float)
     }
 
     @JvmStatic
-    fun putFloat(any: Any?, long: Long, float: Float) {
-        this.putFloat1.invoke(any, long, float)
+    fun putFloat(any: Any?, offset: Long, float: Float) {
+        this.putFloat1.invoke(any, offset, float)
     }
 
     @JvmStatic
     fun getDouble(any: Any?, long: Long): Double = this.getDouble.invoke(any, long) as Double
 
     @JvmStatic
-    fun getDouble(long: Long): Double = this.getDouble1.invoke(long) as Double
+    fun getDouble(address: Long): Double = this.getDouble1.invoke(address) as Double
 
     @JvmStatic
-    fun putDouble(long: Long, double: Double) {
-        this.putDouble.invoke(long, double)
+    fun putDouble(address: Long, double: Double) {
+        this.putDouble.invoke(address, double)
     }
 
     @JvmStatic
@@ -468,116 +442,111 @@ object Safe {
     }
 
     @JvmStatic
-    fun getReferenceVolatile(any: Any?, long: Long): Any? = this.getReferenceVolatile.invoke(any, long)
+    fun getReferenceVolatile(any: Any?, offset: Long): Any? = this.getReferenceVolatile.invoke(any, offset)
 
     @JvmStatic
-    fun putReferenceVolatile(any: Any?, long: Long, any1: Any?) {
-        this.putReferenceVolatile.invoke(any, long, any1)
+    fun putReferenceVolatile(any: Any?, offset: Long, any1: Any?) {
+        this.putReferenceVolatile.invoke(any, offset, any1)
     }
 
     @JvmStatic
-    fun getBooleanVolatile(any: Any?, long: Long): Boolean = this.getBooleanVolatile.invoke(any, long) as Boolean
+    fun getBooleanVolatile(any: Any?, offset: Long): Boolean = this.getBooleanVolatile.invoke(any, offset) as Boolean
 
     @JvmStatic
-    fun putBooleanVolatile(any: Any?, long: Long, boolean: Boolean) {
-        this.putBooleanVolatile.invoke(any, long, boolean)
+    fun putBooleanVolatile(any: Any?, offset: Long, boolean: Boolean) {
+        this.putBooleanVolatile.invoke(any, offset, boolean)
     }
 
     @JvmStatic
-    fun getByteVolatile(any: Any?, long: Long): Byte = this.getByteVolatile.invoke(any, long) as Byte
+    fun getByteVolatile(any: Any?, offset: Long): Byte = this.getByteVolatile.invoke(any, offset) as Byte
 
     @JvmStatic
-    fun putByteVolatile(any: Any?, long: Long, byte: Byte) {
-        this.putByteVolatile.invoke(any, long, byte)
+    fun putByteVolatile(any: Any?, offset: Long, byte: Byte) {
+        this.putByteVolatile.invoke(any, offset, byte)
     }
 
     @JvmStatic
-    fun getShortVolatile(any: Any?, long: Long): Short = this.getShortVolatile.invoke(any, long) as Short
+    fun getShortVolatile(any: Any?, offset: Long): Short = this.getShortVolatile.invoke(any, offset) as Short
 
     @JvmStatic
-    fun putShortVolatile(any: Any?, long: Long, short: Short) {
-        this.putShortVolatile.invoke(any, long, short)
+    fun putShortVolatile(any: Any?, offset: Long, short: Short) {
+        this.putShortVolatile.invoke(any, offset, short)
     }
 
     @JvmStatic
-    fun getCharVolatile(any: Any?, long: Long): Char = this.getCharVolatile.invoke(any, long) as Char
+    fun getCharVolatile(any: Any?, offset: Long): Char = this.getCharVolatile.invoke(any, offset) as Char
 
     @JvmStatic
-    fun putCharVolatile(any: Any?, long: Long, char: Char) {
-        this.putCharVolatile.invoke(any, long, char)
+    fun putCharVolatile(any: Any?, offset: Long, char: Char) {
+        this.putCharVolatile.invoke(any, offset, char)
     }
 
     @JvmStatic
-    fun getIntVolatile(any: Any?, long: Long): Int = this.getIntVolatile.invoke(any, long) as Int
+    fun getIntVolatile(any: Any?, offset: Long): Int = this.getIntVolatile.invoke(any, offset) as Int
 
     @JvmStatic
-    fun putIntVolatile(any: Any?, long: Long, int: Int) {
-        this.putIntVolatile.invoke(any, long, int)
+    fun putIntVolatile(any: Any?, offset: Long, int: Int) {
+        this.putIntVolatile.invoke(any, offset, int)
     }
 
     @JvmStatic
-    fun getLongVolatile(any: Any?, long: Long): Long = this.getLongVolatile.invoke(any, long) as Long
+    fun getLongVolatile(any: Any?, offset: Long): Long = this.getLongVolatile.invoke(any, offset) as Long
 
     @JvmStatic
-    fun putLongVolatile(any: Any?, long: Long, long1: Long) {
-        this.putLongVolatile.invoke(any, long, long1)
+    fun putLongVolatile(any: Any?, offset: Long, offset1: Long) {
+        this.putLongVolatile.invoke(any, offset, offset1)
     }
 
     @JvmStatic
-    fun getFloatVolatile(any: Any?, long: Long): Float = this.getFloatVolatile.invoke(any, long) as Float
+    fun getFloatVolatile(any: Any?, offset: Long): Float = this.getFloatVolatile.invoke(any, offset) as Float
 
     @JvmStatic
-    fun putFloatVolatile(any: Any?, long: Long, float: Float) {
-        this.putFloatVolatile.invoke(any, long, float)
+    fun putFloatVolatile(any: Any?, offset: Long, float: Float) {
+        this.putFloatVolatile.invoke(any, offset, float)
     }
 
     @JvmStatic
-    fun getDoubleVolatile(any: Any?, long: Long): Double = this.getDoubleVolatile.invoke(any, long) as Double
+    fun getDoubleVolatile(any: Any?, offset: Long): Double = this.getDoubleVolatile.invoke(any, offset) as Double
 
     @JvmStatic
-    fun putDoubleVolatile(any: Any?, long: Long, double: Double) {
-        this.putDoubleVolatile.invoke(any, long, double)
+    fun putDoubleVolatile(any: Any?, offset: Long, double: Double) {
+        this.putDoubleVolatile.invoke(any, offset, double)
     }
 
     @JvmStatic
-    fun park(boolean: Boolean, long: Long) {
-        this.park.invoke(boolean, long)
+    fun park(absolute: Boolean, time: Long) {
+        this.park.invoke(absolute, time)
     }
 
     @JvmStatic
-    fun unpark(any: Any?) {
-        this.unpark.invoke(any)
+    fun unpark(thread: Thread) {
+        this.unpark.invoke(thread)
     }
 
     @JvmStatic
-    fun defineClass(string: String?, byteArray: ByteArray?, int: Int, int1: Int, classLoader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
-        return this.defineClass.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
+    fun defineClass(name: String?, bytecode: ByteArray, offset: Int, length: Int, loader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
+        return this.defineClass.invoke(name, bytecode, offset, length, loader, protectionDomain) as Class<*>
     }
 
     @JvmStatic
-    fun objectFieldOffset(field: Field?): Long = this.objectFieldOffset.invoke(field) as Long
+    fun objectFieldOffset(field: Field): Long = this.objectFieldOffset.invoke(field) as Long
 
     @JvmStatic
-    fun objectFieldOffset(type: Class<*>?, string: String?): Long = this.objectFieldOffset1.invoke(type, string) as Long
+    fun objectFieldOffset(type: Class<*>, name: String): Long = this.objectFieldOffset1.invoke(type, name) as Long
 
     @JvmStatic
-    fun defineClass0(string: String?, byteArray: ByteArray?, int: Int, int1: Int, classLoader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
-        return this.defineClass0.invoke(string, byteArray, int, int1, classLoader, protectionDomain) as Class<*>
-    }
-
-    @JvmStatic
-    fun ensureClassInitialized(type: Class<*>?) {
+    fun ensureClassInitialized(type: Class<*>) {
         this.ensureClassInitialized.invoke(type)
     }
 
     @JvmStatic
-    fun staticFieldBase(field: Field?): Any? = this.staticFieldBase.invoke(field)
+    fun staticFieldBase(field: Field): Any? = this.staticFieldBase.invoke(field)
 
     @JvmStatic
-    fun staticFieldOffset(field: Field?): Long = this.staticFieldOffset.invoke(field) as Long
+    fun staticFieldOffset(field: Field): Long = this.staticFieldOffset.invoke(field) as Long
 
     @JvmStatic
-    fun shouldBeInitialized(type: Class<*>?): Boolean = this.shouldBeInitialized.invoke(type) as Boolean
+    fun shouldBeInitialized(type: Class<*>): Boolean = this.shouldBeInitialized.invoke(type) as Boolean
 
     @JvmStatic
     fun loadLoadFence() {
@@ -590,80 +559,80 @@ object Safe {
     }
 
     @JvmStatic
-    fun getAddress(any: Any?, long: Long): Long = this.getAddress.invoke(any, long) as Long
+    fun getAddress(any: Any?, offset: Long): Long = this.getAddress.invoke(any, offset) as Long
 
     @JvmStatic
-    fun getAddress(long: Long): Long = this.getAddress1.invoke(long) as Long
+    fun getAddress(address: Long): Long = this.getAddress1.invoke(address) as Long
 
     @JvmStatic
-    fun putAddress(any: Any?, long: Long, long1: Long) {
-        this.putAddress.invoke(any, long, long1)
+    fun putAddress(any: Any?, offset: Long, x: Long) {
+        this.putAddress.invoke(any, offset, x)
     }
 
     @JvmStatic
-    fun putAddress(long: Long, long1: Long) {
-        this.putAddress1.invoke(long, long1)
+    fun putAddress(address: Long, x: Long) {
+        this.putAddress1.invoke(address, x)
     }
 
     @JvmStatic
-    fun freeMemory(long: Long) {
-        this.freeMemory.invoke(long)
+    fun freeMemory(address: Long) {
+        this.freeMemory.invoke(address)
     }
 
     @JvmStatic
-    fun setMemory(any: Any?, long: Long, long1: Long, byte: Byte) {
-        this.setMemory.invoke(any, long, long1, byte)
+    fun setMemory(any: Any?, offset: Long, bytes: Long, value: Byte) {
+        this.setMemory.invoke(any, offset, bytes, value)
     }
 
     @JvmStatic
-    fun setMemory(long: Long, long1: Long, byte: Byte) {
-        this.setMemory1.invoke(long, long1, byte)
+    fun setMemory(address: Long, bytes: Long, value: Byte) {
+        this.setMemory1.invoke(address, bytes, value)
     }
 
     @JvmStatic
-    fun copyMemory(any: Any?, long: Long, any1: Any?, long1: Long, long2: Long) {
-        this.copyMemory.invoke(any, long, any1, long1, long2)
+    fun copyMemory(srcBase: Any?, srcOffset: Long, destBase: Any?, destOffset: Long, bytes: Long) {
+        this.copyMemory.invoke(srcBase, srcOffset, destBase, destOffset, bytes)
     }
 
     @JvmStatic
-    fun copyMemory(long: Long, long1: Long, long2: Long) {
-        this.copyMemory1.invoke(long, long1, long2)
+    fun copyMemory(srcAddress: Long, destAddress: Long, bytes: Long) {
+        this.copyMemory1.invoke(srcAddress, destAddress, bytes)
     }
 
     @JvmStatic
-    fun copySwapMemory(any: Any?, long: Long, any1: Any?, long1: Long, long2: Long, long3: Long) {
-        this.copySwapMemory.invoke(any, long, any1, long1, long2, long3)
+    fun copySwapMemory(srcBase: Any?, srcOffset: Long, destBase: Any?, destOffset: Long, bytes: Long, elemSize: Long) {
+        this.copySwapMemory.invoke(srcBase, srcOffset, destBase, destOffset, bytes, elemSize)
     }
 
     @JvmStatic
-    fun copySwapMemory(long: Long, long1: Long, long2: Long, long3: Long) {
-        this.copySwapMemory1.invoke(long, long1, long2, long3)
+    fun copySwapMemory(srcAddress: Long, destAddress: Long, bytes: Long, elemSize: Long) {
+        this.copySwapMemory1.invoke(srcAddress, destAddress, bytes, elemSize)
     }
 
     @JvmStatic
-    fun dataCacheLineAlignDown(long: Long): Long = this.dataCacheLineAlignDown.invoke(long) as Long
+    fun dataCacheLineAlignDown(address: Long): Long = this.dataCacheLineAlignDown.invoke(address) as Long
 
     @JvmStatic
     fun dataCacheLineFlushSize(): Int = this.dataCacheLineFlushSize.invoke() as Int
 
     @JvmStatic
-    fun arrayBaseOffset(type: Class<*>?): Int = this.arrayBaseOffset.invoke(type) as Int
+    fun arrayBaseOffset(arrayClass: Class<*>): Int = this.arrayBaseOffset.invoke(arrayClass) as Int
 
     @JvmStatic
-    fun arrayIndexScale(type: Class<*>?): Int = this.arrayIndexScale.invoke(type) as Int
+    fun arrayIndexScale(arrayClass: Class<*>): Int = this.arrayIndexScale.invoke(arrayClass) as Int
 
     @JvmStatic
-    fun getUncompressedObject(long: Long): Any? = this.getUncompressedObject.invoke(long)
+    fun getUncompressedObject(address: Long): Any? = this.getUncompressedObject.invoke(address)
 
     @JvmStatic
-    fun allocateMemory(long: Long): Long = this.allocateMemory.invoke(long) as Long
+    fun allocateMemory(bytes: Long): Long = this.allocateMemory.invoke(bytes) as Long
 
     @JvmStatic
-    fun reallocateMemory(long: Long, long1: Long): Long = this.reallocateMemory.invoke(long, long1) as Long
+    fun reallocateMemory(address: Long, bytes: Long): Long = this.reallocateMemory.invoke(address, bytes) as Long
 
     @JvmStatic
-    fun writebackMemory(long: Long, long1: Long) {
-        this.writebackMemory.invoke(long, long1)
+    fun writebackMemory(address: Long, length: Long) {
+        this.writebackMemory.invoke(address, length)
     }
 
     @JvmStatic
@@ -673,35 +642,27 @@ object Safe {
     fun pageSize(): Int = this.pageSize.invoke() as Int
 
     @JvmStatic
-    fun defineAnonymousClass(type: Class<*>?, byteArray: ByteArray?, array: Array<*>?): Class<*>? = this.defineAnonymousClass.invoke(type, byteArray, array) as Class<*>?
+    fun allocateUninitializedArray(componentType: Class<*>, length: Int): Any = this.allocateUninitializedArray.invoke(componentType, length)
 
     @JvmStatic
-    fun allocateUninitializedArray(type: Class<*>?, int: Int): Any? = this.allocateUninitializedArray.invoke(type, int)
-
-    @JvmStatic
-    fun getLoadAverage(doubleArray: DoubleArray?, int: Int): Int = this.getLoadAverage.invoke(doubleArray, int) as Int
+    fun getLoadAverage(averages: DoubleArray, samples: Int): Int = this.getLoadAverage.invoke(averages, samples) as Int
 
     @JvmStatic
     fun isBigEndian(): Boolean = this.isBigEndian.invoke() as Boolean
 
     @JvmStatic
-    fun invokeCleaner(byteBuffer: ByteBuffer) {
-        this.invokeCleaner.invoke(byteBuffer)
+    fun invokeCleaner(directBuffer: ByteBuffer) {
+        this.invokeCleaner.invoke(directBuffer)
     }
 
-    @JvmStatic
-    fun getObject(any: Any?, long: Long): Any? = this.getObject.invoke(any, long)
+    // extensions
 
     @JvmStatic
-    fun getObjectVolatile(any: Any?, long: Long): Any? = this.getObjectVolatile.invoke(any, long)
+    inline fun <reified T> new(): T = this.allocateInstance(T::class.java)
 
     @JvmStatic
-    fun putObject(any: Any?, long: Long, any1: Any?) {
-        this.putObject.invoke(any, long, any1)
-    }
+    inline val <reified T> Class<T>.new get() = new<T>()
 
     @JvmStatic
-    fun putObjectVolatile(any: Any?, long: Long, any1: Any?) {
-        this.putObjectVolatile.invoke(any, long, any1)
-    }
+    inline val <reified T : Any> KClass<T>.new get() = new<T>()
 }
