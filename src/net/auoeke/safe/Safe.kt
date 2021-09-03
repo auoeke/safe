@@ -658,11 +658,11 @@ object Safe {
     // extensions
 
     @JvmStatic
-    inline fun <reified T> new(): T = this.allocateInstance(T::class.java)
+    inline fun <reified T> new(): T = allocateInstance(T::class.java)
 
     @JvmStatic
-    inline val <reified T> Class<T>.new get() = new<T>()
+    inline val <T> Class<T>.new get() = allocateInstance(this)
 
     @JvmStatic
-    inline val <reified T : Any> KClass<T>.new get() = new<T>()
+    inline val <T : Any> KClass<T>.new get() = allocateInstance(this.java)
 }

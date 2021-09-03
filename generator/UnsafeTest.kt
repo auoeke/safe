@@ -9,5 +9,7 @@ class UnsafeTest {
     @Test
     fun test() {
         assert(new<Int>() == 0)
+
+        println(Class.forName("jdk.internal.misc.Unsafe").new)
     }
 }
