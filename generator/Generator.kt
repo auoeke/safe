@@ -79,23 +79,23 @@ class Generator {
     private fun initializer(method: Method): String {
         return """lookup.bind(unsafe, "${method.name}", MethodType.methodType(${method.returnType.literal}, ${method.parameterTypes.joinToString(", ") {it.literal}}))"""
     }
-}
 
-private val Class<*>.literal get(): String = when (this) {
-    Void.TYPE -> "Void.TYPE"
-    else -> "${this.kotlinName}::class.java"
-}
+    private val Class<*>.literal get(): String = when (this) {
+        Void.TYPE -> "Void.TYPE"
+        else -> "${this.kotlinName}::class.java"
+    }
 
-private val Class<*>.kotlinName get(): String = this.kotlin.simpleName!!
+    private val Class<*>.kotlinName get(): String = this.kotlin.simpleName!!
 
-private val Type.kotlinType get(): String = when (this) {
-    is ParameterizedType -> this.typeName.replace('?', '*') + "?"
-    is Class<*> -> this.kotlinName.letIf(this.isArray && !this.componentType.isPrimitive) {"$it<*>"}.letIf(!this.isPrimitive) {"$it?"}
-    else -> throw IllegalArgumentException()
-}
+    private val Type.kotlinType get(): String = when (this) {
+        is ParameterizedType -> this.typeName.replace('?', '*') + "?"
+        is Class<*> -> this.kotlinName.letIf(this.isArray && !this.componentType.isPrimitive) {"$it<*>"}.letIf(!this.isPrimitive) {"$it?"}
+        else -> throw IllegalArgumentException()
+    }
 
-private val Class<*>.variableName: String get() = when (val name = this.kotlinName.replaceFirstChar(Char::lowercase)) {
-    "object" -> "obj"
-    "class" -> "type"
-    else -> name
+    private val Class<*>.variableName: String get() = when (val name = this.kotlinName.replaceFirstChar(Char::lowercase)) {
+        "object" -> "obj"
+        "class" -> "type"
+        else -> name
+    }
 }
