@@ -1,11 +1,9 @@
 import factory.UnsafeFactoryBuilder
 import factory.UnsafeFactoryType
-import net.auoeke.safe.Safe
 import net.auoeke.safe.Safe.new
 import org.junit.jupiter.api.Test
 import org.junit.platform.commons.annotation.Testable
 import sun.misc.Unsafe
-import java.lang.annotation.RetentionPolicy
 
 @Testable
 class UnsafeTest {

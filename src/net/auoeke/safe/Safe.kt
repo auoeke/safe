@@ -19,7 +19,7 @@ object Safe {
 
     @Suppress("ComplexRedundantLet") // redundan't
     @JvmField
-    val unsafe: Any = Class.forName("jdk.internal.misc.Unsafe").let {unsafe -> lookup.findStaticGetter(unsafe, "theUnsafe", unsafe)()}
+    val unsafe: Any = Class.forName("jdk.internal.misc.Unsafe").let {lookup.findStatic(it, "getUnsafe", MethodType.methodType(it))()}
 
     @JvmStatic
     private val allocateInstance: MethodHandle = lookup.bind(unsafe, "allocateInstance", MethodType.methodType(Any::class.java, Class::class.java))
@@ -252,12 +252,6 @@ object Safe {
 
     @JvmStatic
     private val copySwapMemory1: MethodHandle = lookup.bind(unsafe, "copySwapMemory", MethodType.methodType(Void.TYPE, Long::class.java, Long::class.java, Long::class.java, Long::class.java))
-
-    @JvmStatic
-    private val dataCacheLineAlignDown: MethodHandle = lookup.bind(unsafe, "dataCacheLineAlignDown", MethodType.methodType(Long::class.java, Long::class.java))
-
-    @JvmStatic
-    private val dataCacheLineFlushSize: MethodHandle = lookup.bind(unsafe, "dataCacheLineFlushSize", MethodType.methodType(Int::class.java))
 
     @JvmStatic
     private val arrayBaseOffset: MethodHandle = lookup.bind(unsafe, "arrayBaseOffset", MethodType.methodType(Int::class.java, Class::class.java))
@@ -608,12 +602,6 @@ object Safe {
     fun copySwapMemory(srcAddress: Long, destAddress: Long, bytes: Long, elemSize: Long) {
         this.copySwapMemory1.invoke(srcAddress, destAddress, bytes, elemSize)
     }
-
-    @JvmStatic
-    fun dataCacheLineAlignDown(address: Long): Long = this.dataCacheLineAlignDown.invoke(address) as Long
-
-    @JvmStatic
-    fun dataCacheLineFlushSize(): Int = this.dataCacheLineFlushSize.invoke() as Int
 
     @JvmStatic
     fun arrayBaseOffset(arrayClass: Class<*>): Int = this.arrayBaseOffset.invoke(arrayClass) as Int
