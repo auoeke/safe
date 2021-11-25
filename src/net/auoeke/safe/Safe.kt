@@ -195,9 +195,6 @@ object Safe {
         "defineClass",
         MethodType.methodType(Class::class.java, String::class.java, ByteArray::class.java, Int::class.java, Int::class.java, ClassLoader::class.java, ProtectionDomain::class.java)
     )
-    
-    @JvmStatic
-    private val defineHiddenClass: MethodHandle = lookup.bind(unsafe, "defineAnonymousClass", MethodType.methodType(Class::class.java, Class::class.java, ByteArray::class.java, Array<Any?>::class.java))
 
     @JvmStatic
     private val objectFieldOffset: MethodHandle = lookup.bind(unsafe, "objectFieldOffset", MethodType.methodType(Long::class.java, Field::class.java))
@@ -524,9 +521,6 @@ object Safe {
     fun defineClass(name: String?, bytecode: ByteArray, offset: Int, length: Int, loader: ClassLoader?, protectionDomain: ProtectionDomain?): Class<*> {
         return defineClass.invoke(name, bytecode, offset, length, loader, protectionDomain) as Class<*>
     }
-
-    @JvmStatic
-    fun defineHiddenClass(hostingClass: Class<*>, bytecodes: ByteArray, constPatches: Array<Any?>? = null): Class<*> = defineHiddenClass.invoke(hostingClass, bytecodes, constPatches) as Class<*>
 
     @JvmStatic
     fun objectFieldOffset(field: Field): Long = objectFieldOffset.invoke(field) as Long
